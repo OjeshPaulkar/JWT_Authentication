@@ -8,6 +8,22 @@ const users = [];
 
 app.use(express.json());
 
+function auth(req,res,next)  {
+    const { token } = req.headers;
+    const decodedToken = jwt.verify(token,JWT_SECRET);
+    if(decodedToken.username){
+        req.username = decodedToken.username;
+        next();
+    }else{
+        res.status(404).json({msg : "User is not logged In, Please Login first"});
+    }
+}
+
+app.get("/", (req,res) => {
+    res.sendFile(__dirname + "/FrontEnd/index.html");
+})
+
+
 app.post("/signup", (req,res) => {
     const { username, password } = req.body;
     if(users.find((un) => un.username==username)){
@@ -35,16 +51,10 @@ app.post("/signin", (req,res) => {
     console.log(users);
 });
 
-app.get("/me", (req,res) => {
-    const { token } = req.headers;
-    const decryptedToken = jwt.verify(token, JWT_SECRET);
 
-    if (decryptedToken){
-    const userInfo = decryptedToken.username;
+app.get("/me", auth,(req,res) => {
+    const userInfo = req.username;
     res.json({msg : `Welcome ${userInfo}`});
-    }else{
-        res.status(403).json({error: "Invalid session"})
-    }
     console.log(`Logged User is ${userInfo}`);
 });
 

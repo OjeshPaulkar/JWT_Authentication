@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>SignUp</h1>
+    <div>
+        <input type="text" placeholder="Username" id="signupUN">
+        <input type="text" placeholder="Password" id="signupPass">
+        <button onclick=signUp()>SignUp</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.6/axios.min.js"></script>
+
+    <div></div>
+    <div></div>
+    <div></div>
+
+    <h1>SignIn</h1>
+    <div>
+        <input type="text" placeholder="Username" id="signinUN">
+        <input type="text" placeholder="Password" id="signinPass">
+        <button onclick=signIn()>SignIn</button>
+    </div>
+
+    <div id="afterSignIn"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.6/axios.min.js"></script>
+
+    <script>
+         async function signUp() {
+            const userName = document.querySelector("#signupUN").value;
+            const password = document.querySelector("#signupPass").value;
+
+            const responce = await axios.post("http://localhost:3000/signup" , {
+                username : userName,
+                password : password
+            });
+            if(responce.status === 200){
+                alert("You Have Sucessfully Signup");
+            } else{
+                alert("something went Wrong");
+            }
+   }
+
+   async function signIn() {
+        const userName = document.querySelector("#signinUN").value;
+        const password = document.querySelector("#signinPass").value;
+
+        const responce = await axios.post("http://localhost:3000/signin" , {
+            username : userName,
+            password : password
+        });
+        const JWT_Token = responce.data.token;
+        localStorage.setItem("token", JWT_Token);
+        console.log(JWT_Token);
+        // alert(JWT_Token);
+
+        const res1 = await axios.get("http://localhost:3000/me" , {
+            headers : {
+            token : JWT_Token
+            }
+        });
+
+        const signedInMessage = res1.data.msg;
+        document.querySelector("#afterSignIn").innerHTML = signedInMessage;
+   }
+    </script>
+    
+</body>
+</html>
